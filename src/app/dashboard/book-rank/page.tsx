@@ -8,8 +8,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import * as papa from 'papaparse';
 import chardet from 'chardet';
-import { Board, Row } from '@/app/dashboard/book-rank/Board';
+import { Board } from '@/app/dashboard/book-rank/Board';
 import { toNumber } from '@/app/dashboard/book-rank/util';
+import { Row } from '@/app/dashboard/book-rank/types';
 
 const requiredColumn = ['书id', '阅读人数', '深度阅读率', '转订率', '完读率'] as const;
 type RequiredColumn = typeof requiredColumn[number]

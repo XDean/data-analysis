@@ -1,14 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FC } from 'react';
 import { Histogram } from '@/components/plot/Histogram';
-
-export type Row = {
-  id: number
-  k0: number
-  k1: number
-  k2: number
-  k3: number
-}
+import { Row } from '@/app/dashboard/book-rank/types';
+import { RankCard } from '@/app/dashboard/book-rank/RankCard';
 
 type Props = {
   data: Row[]
@@ -20,7 +14,7 @@ export const Board: FC<Props> = (
   },
 ) => {
   return (
-    <div className={'grid grid-cols-3 pt-2 gap-2'}>
+    <div className={'grid grid-cols-3 grid-rows-2 pt-2 gap-2'}>
       <Card>
         <CardHeader>
           <CardTitle>阅读量</CardTitle>
@@ -77,6 +71,9 @@ export const Board: FC<Props> = (
           />
         </CardContent>
       </Card>
+      <div className={'col-span-2'}>
+        <RankCard data={data}/>
+      </div>
     </div>
   );
 };
