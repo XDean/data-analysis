@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const MenuBar = () => {
   return (
     <Menubar>
-      <div className={'px-2 border-primary border rounded text-xl content-end'}>
+      <div className={'px-2 text-xl'}>
         Data Analysis
       </div>
       <MenubarMenu>
@@ -25,7 +25,7 @@ export const MenuBar = () => {
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-      <div className={'px-2 bg-primary rounded text-primary-foreground text-xl content-end'}>
+      <div className={'!ml-auto px-2 bg-primary rounded text-primary-foreground text-xl content-end'}>
         XDean
       </div>
     </Menubar>
