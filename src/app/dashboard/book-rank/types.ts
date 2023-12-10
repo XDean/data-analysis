@@ -1,9 +1,18 @@
+export const requiredColumn = ['书id', '阅读人数', '深度阅读率', '转订率', '完读率'] as const;
+export type RequiredColumn = typeof requiredColumn[number]
+
+export type OriginRow = Record<RequiredColumn, string> & Record<string, string>
 export type Row = {
   id: number
   k0: number
   k1: number
   k2: number
   k3: number
+}
+
+export type Data = {
+  originRows: OriginRow[]
+  rows: Row[]
 }
 
 export const Levels = ['S', 'A', 'B', 'C'] as const;

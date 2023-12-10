@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FC } from 'react';
 import { Histogram } from '@/components/plot/Histogram';
-import { Row } from '@/app/dashboard/book-rank/types';
+import { Data, Row } from '@/app/dashboard/book-rank/types';
 import { RankCard } from '@/app/dashboard/book-rank/RankCard';
 
 type Props = {
-  data: Row[]
+  data: Data
 }
 
 export const Board: FC<Props> = (
@@ -13,6 +13,7 @@ export const Board: FC<Props> = (
     data,
   },
 ) => {
+  const {rows} = data;
   return (
     <div className={'grid grid-cols-3 grid-rows-2 pt-2 gap-2'}>
       <Card>
@@ -21,7 +22,7 @@ export const Board: FC<Props> = (
         </CardHeader>
         <CardContent>
           <Histogram
-            values={data}
+            values={rows}
             selector={e => e.k0}
             xLabel={'阅读量'}
             yLabel={'数量'}
@@ -35,7 +36,7 @@ export const Board: FC<Props> = (
         </CardHeader>
         <CardContent>
           <Histogram
-            values={data}
+            values={rows}
             selector={e => e.k1}
             xLabel={'深度阅读率'}
             yLabel={'数量'}
@@ -49,7 +50,7 @@ export const Board: FC<Props> = (
         </CardHeader>
         <CardContent>
           <Histogram
-            values={data}
+            values={rows}
             selector={e => e.k2}
             xLabel={'转订率'}
             yLabel={'数量'}
@@ -63,7 +64,7 @@ export const Board: FC<Props> = (
         </CardHeader>
         <CardContent>
           <Histogram
-            values={data}
+            values={rows}
             selector={e => e.k3}
             xLabel={'完读率'}
             yLabel={'数量'}

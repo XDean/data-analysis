@@ -16,7 +16,7 @@ const Loading = {
   error: <T>(error: Error): Loading<T> => ({type: 'error', error}),
 };
 
-export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList): Loading<T> {
+export function useAsync<T>(fn: () => Promise<T | void>, deps: DependencyList): Loading<T> {
   const [value, setValue] = useState<Loading<T>>(Loading.loading());
   const mod = useRef(1);
   useEffect(() => {
@@ -25,7 +25,11 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList): Loading
     fn()
       .then(e => {
         if (mod.current === id) {
-          setValue(Loading.ready(e));
+          if (e === undefined) {
+            setValue(Loading.loading());
+          } else {
+            setValue(Loading.ready(e));
+          }
         }
       })
       .catch(e => {

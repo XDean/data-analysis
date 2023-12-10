@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FC, useState } from 'react';
-import { Config, defaultLevelConfig, Level, LevelConfig, Levels, Row } from '@/app/dashboard/book-rank/types';
+import { FC, useMemo, useState } from 'react';
+import { Config, Data, defaultLevelConfig, Level, LevelConfig, Levels, Row } from '@/app/dashboard/book-rank/types';
 import { Input } from '@/components/ui/input';
 import { useImmer } from 'use-immer';
+import { downloadString } from '@/lib/util/download-string';
+import { getLevel, matchConfig } from '@/app/dashboard/book-rank/util';
+import * as papa from 'papaparse';
 
 type Props = {
-  data: Row[]
+  data: Data
 }
 
 export const RankCard: FC<Props> = (
@@ -13,7 +16,18 @@ export const RankCard: FC<Props> = (
     data,
   },
 ) => {
+  const {rows} = data;
   const [value, updateValue] = useImmer<LevelConfig>(() => defaultLevelConfig());
+  const levelCount = useMemo(() => {
+    const count: Record<Level, number> = {S: 0, A: 0, B: 0, C: 0};
+    rows.forEach(row => {
+      const level = getLevel(row, value);
+      if (level !== null) {
+        count[level] += 1;
+      }
+    });
+    return count;
+  }, [value, rows]);
   return (
     <Card className={'w-full h-full'}>
       <CardHeader>
@@ -78,17 +92,25 @@ export const RankCard: FC<Props> = (
                 />
               </td>
               <td className={'text-right'}>
-                {data.filter(e =>
-                  e.k0 >= value[level].k0 &&
-                  e.k1 >= value[level].k1 &&
-                  e.k2 >= value[level].k2 &&
-                  e.k3 >= value[level].k3,
-                ).length}
+                {levelCount[level]}
               </td>
             </tr>
           ))}
           </thead>
         </table>
+        <button
+          className={'border rounded bg-blue-500 px-2 py-1 mt-2 text-white'}
+          onClick={() => {
+            const newRows = data.originRows.map((e, i) => ({
+              ...e,
+              '评级': getLevel(rows[i], value) ?? '',
+            }));
+            const content = papa.unparse(newRows, {header: true});
+            downloadString('\ufeff' + content, {filename: 'result.csv', type: 'text/csv;charset=utf-8-sig'});
+          }}
+        >
+          导出包含评级列的新CSV
+        </button>
       </CardContent>
     </Card>
   );
