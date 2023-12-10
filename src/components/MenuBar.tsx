@@ -1,4 +1,12 @@
-import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/components/ui/menubar';
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu, MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from '@/components/ui/menubar';
 import Link from 'next/link';
 
 export const MenuBar = () => {
@@ -10,9 +18,16 @@ export const MenuBar = () => {
       <MenubarMenu>
         <MenubarTrigger>文件</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>
-            创建 分析面板...
-          </MenubarItem>
+          <MenubarSub>
+            <MenubarSubTrigger>创建</MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem>
+                <Link href={'/dashboard/book-rank'}>
+                  书籍分析
+                </Link>
+              </MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
