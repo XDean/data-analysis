@@ -21,7 +21,7 @@ export default function Page() {
       const content = new TextDecoder(charset ?? 'utf-8').decode(buffer);
       const parseResult = papa.parse<OriginRow>(content, {header: true, skipEmptyLines: true});
       if (parseResult.errors.length > 0) {
-        throw new Error(`CSV解析失败：\n${parseResult.errors.map(e => `- ${e}`).join('\n')}`);
+        throw new Error(`CSV解析失败：\n${parseResult.errors.map(e => `- ${JSON.stringify(e)}`).join('\n')}`);
       }
       return parseResult;
     }
