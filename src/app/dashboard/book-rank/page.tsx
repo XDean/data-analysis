@@ -9,8 +9,7 @@ import { AlertCircle } from 'lucide-react';
 import * as papa from 'papaparse';
 import chardet from 'chardet';
 import { Board } from '@/app/dashboard/book-rank/Board';
-import { toNumber } from '@/app/dashboard/book-rank/util';
-import { Data, OriginRow, requiredColumn, Row } from '@/app/dashboard/book-rank/types';
+import { Data, OriginRow } from '@/app/dashboard/book-rank/types';
 
 export default function Page() {
   const [file, setFile] = useState<File>();
@@ -24,31 +23,12 @@ export default function Page() {
       if (parseResult.errors.length > 0) {
         throw new Error(`CSV解析失败：\n${parseResult.errors.map(e => `- ${e}`).join('\n')}`);
       }
-      if (!requiredColumn.every(e => parseResult.meta.fields?.includes(e))) {
-        throw new Error(`必须包含以下列： ${requiredColumn.join(', ')}`);
-      }
-      let rows = parseResult.data.map((e, i): Row => {
-        try {
-          return {
-            id: toNumber(e['书id']),
-            k0: toNumber(e['阅读人数']),
-            k1: toNumber(e['深度阅读率']),
-            k2: toNumber(e['转订率']),
-            k3: toNumber(e['完读率']),
-          };
-        } catch (e) {
-          throw new Error(`Row ${i + 2}: ${(e as Error).message}`);
-        }
-      });
-      return {
-        rows,
-        originRows: parseResult.data,
-      };
+      return parseResult;
     }
   }, [file]);
 
   return (
-    <div className={'p-4'}>
+    <div className={'space-y-2 p-4'}>
       <div className={'flex gap-2 items-center'}>
         <Label htmlFor="file">
           书籍数据文件 (.csv)

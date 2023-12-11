@@ -1,22 +1,19 @@
-import { Config, Level, LevelConfig, Row } from '@/app/dashboard/book-rank/types';
+import { Config, Level, LevelConfig, OriginRow } from '@/app/dashboard/book-rank/types';
 
 export function toNumber(v: string) {
   const num = v.includes('%') ? Number(v.replaceAll('%', '')) / 100 : Number(v);
   if (Number.isNaN(num)) {
-    throw new Error(`${v} 不是合法的数字`);
+    return 0;
   } else {
     return num;
   }
 }
 
-export function matchConfig(row: Row, config: Config): boolean {
-  return row.k0 >= config.k0 &&
-    row.k1 >= config.k1 &&
-    row.k2 >= config.k2 &&
-    row.k3 >= config.k3;
+export function matchConfig(row: OriginRow, config: Config): boolean {
+  return Object.entries(config).every(([k, v]) => toNumber(row[k]) >= v);
 }
 
-export function getLevel(row: Row, config: LevelConfig): Level | null {
+export function getLevel(row: OriginRow, config: LevelConfig): Level | null {
   if (matchConfig(row, config.S)) {
     return 'S';
   } else if (matchConfig(row, config.A)) {

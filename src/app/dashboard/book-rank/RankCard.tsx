@@ -1,33 +1,46 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FC, useMemo, useState } from 'react';
-import { Config, Data, defaultLevelConfig, Level, LevelConfig, Levels, Row } from '@/app/dashboard/book-rank/types';
-import { Input } from '@/components/ui/input';
+import { FC, useEffect, useMemo } from 'react';
+import { Data, defaultLevelConfig, Level, LevelConfig, Levels } from '@/app/dashboard/book-rank/types';
 import { useImmer } from 'use-immer';
 import { downloadString } from '@/lib/util/download-string';
-import { getLevel, matchConfig } from '@/app/dashboard/book-rank/util';
+import { getLevel } from '@/app/dashboard/book-rank/util';
 import * as papa from 'papaparse';
 
 type Props = {
   data: Data
+  kpis: string[]
 }
 
 export const RankCard: FC<Props> = (
   {
     data,
+    kpis,
   },
 ) => {
-  const {rows} = data;
   const [value, updateValue] = useImmer<LevelConfig>(() => defaultLevelConfig());
   const levelCount = useMemo(() => {
-    const count: Record<Level, number> = {S: 0, A: 0, B: 0, C: 0};
-    rows.forEach(row => {
+    const count: Record<Level | '', number> = {S: 0, A: 0, B: 0, C: 0, '': 0};
+    data.data.forEach(row => {
       const level = getLevel(row, value);
-      if (level !== null) {
-        count[level] += 1;
-      }
+      count[level ?? ''] += 1;
     });
     return count;
-  }, [value, rows]);
+  }, [value, data]);
+
+  useEffect(() => {
+    updateValue(v => {
+      Object.values(v).forEach(e => {
+        Object.keys(e).forEach(k => {
+          if (!kpis.includes(k)) {
+            delete e[k];
+          }
+        });
+        kpis.forEach(kpi => {
+          e[kpi] = e[kpi] ?? 0;
+        });
+      });
+    });
+  }, [kpis, updateValue]);
   return (
     <Card className={'w-full h-full'}>
       <CardHeader>
@@ -38,10 +51,11 @@ export const RankCard: FC<Props> = (
           <thead className={'bg-gray-100'}>
           <tr>
             <th/>
-            <th>阅读人数</th>
-            <th>深度阅读率</th>
-            <th>转订率</th>
-            <th>完读率</th>
+            {kpis.map(e => (
+              <th key={e}>
+                {e}
+              </th>
+            ))}
             <th className={'w-24'}>数量</th>
           </tr>
           </thead>
@@ -51,59 +65,37 @@ export const RankCard: FC<Props> = (
               <td>
                 {level}
               </td>
-              <td>
-                <input
-                  type={'number'}
-                  value={value[level].k0}
-                  onChange={e => updateValue(v => {
-                    v[level].k0 = Number(e.target.value);
-                  })}
-                  step={100}
-                />
-              </td>
-              <td>
-                <input
-                  type={'number'}
-                  value={value[level].k1}
-                  onChange={e => updateValue(v => {
-                    v[level].k1 = Number(e.target.value);
-                  })}
-                  step={0.01}
-                />
-              </td>
-              <td>
-                <input
-                  type={'number'}
-                  value={value[level].k2}
-                  onChange={e => updateValue(v => {
-                    v[level].k2 = Number(e.target.value);
-                  })}
-                  step={0.01}
-                />
-              </td>
-              <td>
-                <input
-                  type={'number'}
-                  value={value[level].k3}
-                  onChange={e => updateValue(v => {
-                    v[level].k3 = Number(e.target.value);
-                  })}
-                  step={0.01}
-                />
-              </td>
+              {kpis.map(kpi => (
+                <td key={kpi}>
+                  <input
+                    type={'number'}
+                    value={value[level][kpi]}
+                    onChange={e => updateValue(v => {
+                      v[level][kpi] = Number(e.target.value);
+                    })}
+                    step={0.01}
+                  />
+                </td>
+              ))}
               <td className={'text-right'}>
                 {levelCount[level]}
               </td>
             </tr>
           ))}
+          <tr>
+            <td colSpan={kpis.length + 1}/>
+            <td className={'text-right'}>
+              {levelCount['']}
+            </td>
+          </tr>
           </thead>
         </table>
         <button
           className={'border rounded bg-blue-500 px-2 py-1 mt-2 text-white'}
           onClick={() => {
-            const newRows = data.originRows.map((e, i) => ({
+            const newRows = data.data.map((e, i) => ({
               ...e,
-              '评级': getLevel(rows[i], value) ?? '',
+              '评级': getLevel(e, value) ?? '',
             }));
             const content = papa.unparse(newRows, {header: true});
             downloadString('\ufeff' + content, {filename: 'result.csv', type: 'text/csv;charset=utf-8-sig'});
